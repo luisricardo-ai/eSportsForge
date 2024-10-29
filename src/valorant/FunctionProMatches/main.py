@@ -2,9 +2,14 @@ import requests
 from selectolax.parser import HTMLParser
 from time import sleep
 import json
+import os
+from datetime import datetime, date
+import boto3
 
 
 URL = "https://www.vlr.gg/matches/results/"
+os.environ["RAW_S3_BUCKET"] = "esport-raw-bucket"
+S3 = boto3.client('s3')
 
 
 def get_matches_pages() -> int:
@@ -17,8 +22,7 @@ def get_matches_pages() -> int:
     return last_page
 
 
-def get_page(page: int) -> list[dict]:
-    print(f"Requesting Page: {page}")
+def get_page(page: int, today: str) -> dict[list]:
     page_url = str(URL + f"?page={page}")
     result = requests.get(url=page_url)
     html = HTMLParser(html=result.text)
@@ -69,14 +73,35 @@ def get_page(page: int) -> list[dict]:
                 "score2": score2,
                 "tournament_name": tourney,
                 "round_info": rounds,
+                "dat_load": today
             }
         )
 
-    return result
-    
+    return {"result": result}
+
+
+def save_tmp_file(data: dict[int]) -> str:
+    tmp_dir = "./tmp"
+    file_name = datetime.now().strftime("%Y%m%d%H%M%S%f")
+
+    if not os.path.exists(tmp_dir):
+        os.makedirs(tmp_dir)
+
+    file_path = f"{tmp_dir}/{file_name}.json"
+    with open(file_path, "w") as file:
+        json.dump(data, file)
+
+    return file_name
+
+
+def send_to_s3(file_name: str, today: str):
+    partition = f"game=valorant/dt={today}/"
+    S3.upload_file(f'./tmp/{file_name}.json', os.getenv('RAW_S3_BUCKET'), f'{partition}{file_name}.json')
+
 
 def main(event, context=None):
     pages = 0
+    today = date.today()
 
     if "amount_pages" not in event:
         pages = get_matches_pages()
@@ -85,10 +110,11 @@ def main(event, context=None):
         pages = event["amount_pages"]
     
     for page in range(1, pages + 1):
-        games = get_page(page=page)
+        games = get_page(page=page, today=str(today))
 
-        # TODO FUNCTION TO SAVE TEMP DATA FILE
-        # TODO FUNCTION TO SEND DATA TO S3
+        file_name = save_tmp_file(data=games)
+        send_to_s3(file_name, today=today)
 
         # We are not requesting data from an API, so takecare.
+        print(f"DATA FROM PAGE {page} UPLOADED TO S3")
         sleep(0.5)
