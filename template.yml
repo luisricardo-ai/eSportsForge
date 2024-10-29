@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: IaC blueprint fot eSportsForge.
+
+Parameters:
+  S3RawBucket:
+    Description: S3 raw bucket.
+    Type: String
+    Default: "esport-raw-bucket"
+
+# Resources section
+Resources:
+  RawS3Bucket:
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Ref S3RawBucket
