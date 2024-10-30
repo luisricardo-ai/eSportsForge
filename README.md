@@ -10,6 +10,15 @@ The goal of eSportsForge is to create a robust data infrastructure that enables 
 ## Explanation
 At current moment, valorant do not has an easy way to  consume pro matches data. The whole idea of this project is to consume data with web scraping and consolidate that data.
 
+## Data Freshness
+
+This section is to show you the schedule and routines of Lambda Functions.
+
+| LambdaFunction | Event Status | CRON |
+| - | - | - |
+| `FunctionValorantProMatch` | **ENABLE** | `0 12,23 * * ? *`
+
+[AWS Cron Expression](https://docs.aws.amazon.com/systems-manager/latest/userguide/reference-cron-and-rate-expressions.html#reference-cron-and-rate-expressions-intro)
 
 ## Architecture
 ![architecture](./img/architecture.png)
