@@ -1,0 +1,4 @@
+*.lock
+*.toml
+.DS_Store
+.aws-sam/*
