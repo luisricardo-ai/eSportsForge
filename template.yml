@@ -9,8 +9,57 @@ Parameters:
 
 # Resources section
 Resources:
+  ## S3
   RawS3Bucket:
     Type: 'AWS::S3::Bucket'
     DeletionPolicy: Retain
     Properties:
       BucketName: !Ref S3RawBucket
+
+  ## IAM ROLE
+  RoleLambdaRawValorant:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: lambda-access-s3-raw-valorant
+      Description: Grant permission to Lambda write data in RAW at 'VALORANT' partition.
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: "Allow"
+            Principal: 
+              Service: 
+                - "lambda.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+      Policies: 
+        - PolicyName: s3-raw-write-valorant
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: 
+                  - 's3:PutObject'
+                Resource: 'arn:aws:s3:::esport-raw-bucket/game=valorant/*'
+      Tags: 
+        - Key: game
+          Value: valorant
+
+  ## LAMBDA FUNCTIONS
+  ValorantResultMatchFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: FunctionValorantProMatches
+      Description: Function to get resume data from Valorant match.
+      Role: !GetAtt RoleLambdaRawValorant.Arn
+      Architectures:
+        - x86_64
+      Runtime: python3.12
+      Code:
+        src/valorant/FunctionValorantProMatches
+      Handler: app.main
+      Environment:
+        Variables:
+          RAW_S3_BUCKET: !Ref S3RawBucket
+      Tags:
+        - Key: game
+          Value: valorant

@@ -8,7 +8,6 @@ import boto3
 
 
 URL = "https://www.vlr.gg/matches/results/"
-os.environ["RAW_S3_BUCKET"] = "esport-raw-bucket"
 S3 = boto3.client('s3')
 
 
@@ -81,11 +80,8 @@ def get_page(page: int, today: str) -> dict[list]:
 
 
 def save_tmp_file(data: dict[int]) -> str:
-    tmp_dir = "./tmp"
+    tmp_dir = "/tmp"
     file_name = datetime.now().strftime("%Y%m%d%H%M%S%f")
-
-    if not os.path.exists(tmp_dir):
-        os.makedirs(tmp_dir)
 
     file_path = f"{tmp_dir}/{file_name}.json"
     with open(file_path, "w") as file:
@@ -96,7 +92,7 @@ def save_tmp_file(data: dict[int]) -> str:
 
 def send_to_s3(file_name: str, today: str):
     partition = f"game=valorant/dt={today}/"
-    S3.upload_file(f'./tmp/{file_name}.json', os.getenv('RAW_S3_BUCKET'), f'{partition}{file_name}.json')
+    S3.upload_file(f'/tmp/{file_name}.json', os.getenv('RAW_S3_BUCKET'), f'{partition}{file_name}.json')
 
 
 def main(event, context=None):
