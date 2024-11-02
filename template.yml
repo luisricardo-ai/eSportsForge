@@ -10,6 +10,17 @@ Parameters:
 # Resources section
 Resources:
   ## S3
+  AthenaOutput:
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: esport-athena-bucket
+      LifecycleConfiguration:
+        Rules: 
+          - Id: DeleteAthenaOutput
+            Status: Enabled
+            ExpirationInDays: 7
+
   RawS3Bucket:
     Type: 'AWS::S3::Bucket'
     DeletionPolicy: Retain
