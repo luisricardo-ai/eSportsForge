@@ -9,6 +9,7 @@ import boto3
 
 URL = "https://www.vlr.gg/matches/results/"
 S3 = boto3.client('s3')
+S3_KEY = "game=valorant/content=match_resume"
 
 
 def get_matches_pages() -> int:
@@ -21,7 +22,7 @@ def get_matches_pages() -> int:
     return last_page
 
 
-def get_page(page: int, today: str) -> dict[list]:
+def get_page(page: int) -> dict[list]:
     page_url = str(URL + f"?page={page}")
     result = requests.get(url=page_url)
     html = HTMLParser(html=result.text)
@@ -71,8 +72,7 @@ def get_page(page: int, today: str) -> dict[list]:
                 "score1": score1,
                 "score2": score2,
                 "tournament_name": tourney,
-                "round_info": rounds,
-                "dat_load": today
+                "round_info": rounds
             }
         )
 
@@ -91,13 +91,13 @@ def save_tmp_file(data: dict[int]) -> str:
 
 
 def send_to_s3(file_name: str, today: str):
-    partition = f"game=valorant/dt={today}/"
+    partition = f"{S3_KEY}/dt={today}/"
     S3.upload_file(f'/tmp/{file_name}.json', os.getenv('RAW_S3_BUCKET'), f'{partition}{file_name}.json')
 
 
 def main(event, context=None):
     pages = 0
-    today = date.today()
+    today = str(date.today())
 
     if "amount_pages" not in event:
         pages = get_matches_pages()
@@ -106,7 +106,7 @@ def main(event, context=None):
         pages = event["amount_pages"]
     
     for page in range(1, pages + 1):
-        games = get_page(page=page, today=str(today))
+        games = get_page(page=page)
 
         file_name = save_tmp_file(data=games)
         send_to_s3(file_name, today=today)
