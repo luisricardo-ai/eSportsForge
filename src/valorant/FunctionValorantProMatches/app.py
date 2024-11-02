@@ -96,7 +96,7 @@ def send_to_s3(file_name: str, today: str):
 
 def main(event, context=None):
     pages = 0
-    today = date.today()
+    today = str(date.today())
 
     if "amount_pages" not in event:
         pages = get_matches_pages()
@@ -105,7 +105,7 @@ def main(event, context=None):
         pages = event["amount_pages"]
     
     for page in range(1, pages + 1):
-        games = get_page(page=page, today=str(today))
+        games = get_page(page=page)
         games['dt'] = today
 
         file_name = save_tmp_file(data=games)
@@ -114,8 +114,3 @@ def main(event, context=None):
         # We are not requesting data from an API, so takecare.
         print(f"DATA FROM PAGE {page} UPLOADED TO S3")
         sleep(0.5)
-
-if __name__ == "__main__":
-    main(event={
-    "amount_pages": 1
-})
