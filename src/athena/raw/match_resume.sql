@@ -9,7 +9,7 @@ CREATE EXTERNAL TABLE `match_resume`(
             ,`tournament_name`: STRING
             ,`round_info`: STRING
             ,`dat_load`: STRING
-        >
+        >, `dt`: DATE
     >
 )
 ROW FORMAT SERDE 'org.openx.data.jsonserde.JsonSerDe' 
