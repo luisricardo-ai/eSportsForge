@@ -1,13 +1,15 @@
 CREATE EXTERNAL TABLE `match_resume`(
-    `result` STRUCT<
-        `match_page`: STRING
-        ,`team1`: STRING
-        ,`team2`: STRING
-        ,`score1`: STRING
-        ,`score2`: STRING
-        ,`tournament_name`: STRING
-        ,`round_info`: STRING
-        ,`dat_load`: STRING
+    `result` ARRAY<
+        STRUCT<
+            `match_page`: STRING
+            ,`team1`: STRING
+            ,`team2`: STRING
+            ,`score1`: STRING
+            ,`score2`: STRING
+            ,`tournament_name`: STRING
+            ,`round_info`: STRING
+            ,`dat_load`: STRING
+        >
     >
 )
 ROW FORMAT SERDE 'org.openx.data.jsonserde.JsonSerDe' 
