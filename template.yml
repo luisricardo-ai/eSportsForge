@@ -26,6 +26,7 @@ Resources:
     DeletionPolicy: Retain
     Properties:
       BucketName: !Ref S3RawBucket
+      # IMPLEMENT EVENT RULE HERE
 
   ## IAM ROLE
   RoleLambdaRawValorant:
@@ -55,7 +56,6 @@ Resources:
         - Key: game
           Value: valorant
 
-  # CREATE ROLE TO ALLOW EVENT EVOKE LAMBDA HERE
   RoleEventBridgeEvokeLambda:
     Type: AWS::Lambda::Permission
     Properties:
@@ -92,5 +92,15 @@ Resources:
         Variables:
           RAW_S3_BUCKET: !Ref S3RawBucket
       Tags:
+        - Key: game
+          Value: valorant
+
+  # SQS
+  NewFileAtRaw:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: esport-raw-file-event.fifo
+      FifoQueue: true
+      Tags: 
         - Key: game
           Value: valorant
