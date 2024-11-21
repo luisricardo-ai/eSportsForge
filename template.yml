@@ -26,6 +26,7 @@ Resources:
     DeletionPolicy: Retain
     Properties:
       BucketName: !Ref S3RawBucket
+      # IMPLEMENT EVENT RULE HERE
 
   ## IAM ROLE
   RoleLambdaRawValorant:
