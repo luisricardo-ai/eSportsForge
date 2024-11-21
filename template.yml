@@ -96,11 +96,10 @@ Resources:
           Value: valorant
 
   # SQS
-  NewFileAtRaw:
+  RawQueueValorantResultMatch:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: esport-raw-file-event.fifo
-      FifoQueue: true
+      QueueName: esport-raw-valorant-result-match
       Tags: 
         - Key: game
           Value: valorant
