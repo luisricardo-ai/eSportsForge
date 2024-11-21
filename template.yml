@@ -62,6 +62,23 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
 
+  PolicyS3EventSqs:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Ref 'AWS::AccountId'
+            Action: SQS:SendMessage
+            Resource: "*"
+            Condition:
+              ArnLike:
+                aws:SourceArn: !GetAtt RawS3Bucket.Arn
+      Queues:
+        - Ref: RawQueueValorantResultMatch
+
   ## Event Bridge
   EventEvokeValorantResumeLambda:
     Type: AWS::Events::Rule
